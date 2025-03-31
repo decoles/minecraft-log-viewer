@@ -7,10 +7,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData.dark(),
-      home: const MyHomePage(),
-    );
+    return MaterialApp(theme: ThemeData.dark(), home: const MyHomePage());
   }
 }
 
@@ -31,16 +28,22 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+  DateTimeRange? selectedDateRange;
+
+  Future<void> _selectDateRange(BuildContext context) async {
+    final DateTimeRange? picked = await showDateRangePicker(
       context: context,
-      initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
+      initialDateRange: DateTimeRange(
+        start: DateTime.now(),
+        end: DateTime.now().add(const Duration(days: 7)),
+      ),
     );
-    if (picked != null && picked != selectedDate) {
+
+    if (picked != null && picked != selectedDateRange) {
       setState(() {
-        selectedDate = picked;
+        selectedDateRange = picked;
       });
     }
   }
@@ -48,24 +51,25 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('File and Date Picker')),
+      appBar: AppBar(title: const Text('File and Date Range Picker')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
-              onPressed: _selectFile,
-              child: const Text('Browse'),
-            ),
+            ElevatedButton(onPressed: _selectFile, child: const Text('Browse')),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => _selectDate(context),
-              child: const Text('Select Date'),
+              onPressed: () => _selectDateRange(context),
+              child: const Text('Select Date Range'),
             ),
             const SizedBox(height: 20),
             Text('Selected File: $selectedFile'),
             const SizedBox(height: 10),
-            Text('Selected Date: ${selectedDate?.toLocal().toString().split(' ')[0] ?? 'None'}'),
+            Text(
+              selectedDateRange != null
+                  ? 'Selected Range: ${selectedDateRange!.start.toLocal().toString().split(' ')[0]} - ${selectedDateRange!.end.toLocal().toString().split(' ')[0]}'
+                  : 'Selected Range: None',
+            ),
           ],
         ),
       ),
